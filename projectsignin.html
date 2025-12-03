@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login | ZealBridge</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #f2f8ff, #fff4f4, #f6fff6);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .back-home {
+      position: absolute;
+      top: 20px;
+      left: 30px;
+      color: #444;
+      text-decoration: none;
+      font-size: 15px;
+      transition: 0.3s;
+    }
+
+    .back-home:hover {
+      color: #007bff;
+    }
+
+    .login-box {
+      background: #fff;
+      border-radius: 20px;
+      padding: 40px 45px;
+      width: 380px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.878);
+      text-align: center;
+    }
+
+    .logo {
+      font-size: 26px;
+      color: #00b894;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .logo span {
+      color: #007bff;
+    }
+
+    h2 {
+      font-size: 22px;
+      color: #333;
+      margin-top: 10px;
+      margin-bottom: 5px;
+    }
+
+    .subtitle {
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 25px;
+    }
+
+    form {
+      text-align: left;
+    }
+
+    label {
+      display: block;
+      font-weight: 500;
+      color: #444;
+      margin-bottom: 5px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px 12px;
+      margin-bottom: 18px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+      outline: none;
+      transition: 0.3s;
+    }
+
+    input:focus {
+      border-color: #007bff;
+      box-shadow: 0 0 4px rgba(0, 123, 255, 0.3);
+    }
+
+    .btn {
+      width: 100%;
+      background: blue;
+      border: none;
+      color: white;
+      padding: 12px;
+      border-radius: 25px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s;
+      font-weight: 500;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      opacity: 0.9;
+    }
+
+    .register-link {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #555;
+      text-align: center;
+    }
+
+    .register-link a {
+      color: #007bff;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .register-link a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+  <a href="project.html" class="back-home">Home</a>
+
+  <div class="login-box">
+    <h1 class="logo"><span>Zeal</span>Bridge</h1>
+    <h2>Welcome Back</h2>
+    <p class="subtitle">Login to continue your skill journey</p>
+
+    <form id="loginForm">
+      <label>Username</label>
+      <input type="text" id="username" placeholder="Enter your username" required />
+
+      <label>Password</label>
+      <input type="password" id="password" placeholder="Enter your password" required />
+
+      <button type="submit" class="btn">Login</button>
+    </form>
+
+    <p class="register-link">
+      Don’t have an account? <a href="projectgetstarted.html">Register here</a>
+    </p>
+  </div>
+<script>
+document.getElementById("loginForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value.trim();
+
+    let allUsers = JSON.parse(localStorage.getItem("allUsers")) || [];
+    const foundUser = allUsers.find(
+        user => user.username === username && user.password === password
+    );
+
+    if (!foundUser) {
+        alert("❌ Invalid username or password!");
+        return;
+    }
+
+    // Save logged-in user
+    localStorage.setItem("loggedInUser", JSON.stringify(foundUser));
+
+    // Check if this user already filled skills
+    let profiles = JSON.parse(localStorage.getItem("userProfiles")) || [];
+    let existingProfile = profiles.find(p => p.username === username);
+
+    alert("✅ Login Successful!");
+
+    if (existingProfile) {
+        // Already filled skills → go to account page
+        window.location.href = "account.html";
+    } else {
+        // First time login → go to profile page
+        window.location.href = "profile.html";
+    }
+});
+</script>
+
+</body>
+</html>

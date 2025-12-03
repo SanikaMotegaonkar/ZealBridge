@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matching | ZealBridge</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+    body {
+        font-family: "Poppins", sans-serif;
+        background: #eef6ff;
+        color: #222;
+        margin: 0;
+        padding: 0;
+    }
+
+    .container {
+        width: 92%;
+        max-width: 900px;
+        margin: 40px auto;
+        background: white;
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+        text-align: center;
+        color: #007bff;
+        margin-bottom: 20px;
+    }
+
+    .user-block {
+        background: #f5faff;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 18px;
+        border-left: 4px solid #007bff;
+    }
+
+    .connect-btn {
+        margin-top: 10px;
+        background: #007bff;
+        border: none;
+        color: white;
+        padding: 10px 15px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+    }
+
+    .feedback-btn {
+        margin-top: 10px;
+        background: #28a745;
+        border: none;
+        color: white;
+        padding: 10px 15px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        margin-left: 10px;
+    }
+
+    /* CHAT BOX */
+    .chat-box {
+        position: fixed;
+        right: 40px;
+        bottom: 40px;
+        width: 340px;
+        height: 480px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.2);
+        display: none;
+        flex-direction: column;
+        overflow: hidden;
+        border: 1px solid #ddd;
+    }
+
+    .chat-header {
+        background: #007bff;
+        color: white;
+        padding: 12px;
+        font-weight: 600;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .messages {
+        flex: 1;
+        padding: 12px;
+        overflow-y: auto;
+        background: #f7faff;
+    }
+
+    .message {
+        max-width: 80%;
+        padding: 10px;
+        margin: 6px 0;
+        border-radius: 12px;
+        background: #e5f1ff;
+    }
+
+    .sent {
+        background: #cfe3ff;
+        margin-left: auto;
+    }
+
+    .chat-input-box {
+        display: flex;
+        padding: 10px;
+        background: white;
+        border-top: 1px solid #ddd;
+    }
+
+    .chat-input {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        outline: none;
+    }
+
+    .send-btn {
+        background: #007bff;
+        border: none;
+        padding: 10px 15px;
+        margin-left: 10px;
+        border-radius: 8px;
+        color: white;
+        cursor: pointer;
+        font-weight: 600;
+    }
+
+    .summary-block {
+        background: #e8f1ff;
+        padding: 15px;
+        border-radius: 10px;
+        margin-top: 20px;
+        border-left: 4px solid #28a745;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>🔍 Skill Matching</h1>
+    <div id="matchResults"></div>
+    <div id="summaryResults"></div>
+</div>
+
+<!-- CHAT WINDOW -->
+<div id="chatBox" class="chat-box">
+    <div class="chat-header">
+        <span id="chatUser">Chat</span>
+        <span style="cursor:pointer" onclick="closeChat()">X</span>
+    </div>
+
+    <div class="messages" id="messages"></div>
+
+    <div class="chat-input-box">
+        <input type="text" id="chatInput" class="chat-input" placeholder="Type message...">
+        <button class="send-btn" onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<script>
+    // Load user data
+    let userProfile = JSON.parse(localStorage.getItem("userProfile"));
+    let loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+    let userProfiles = JSON.parse(localStorage.getItem("userProfiles")) || [];
+
+    if (!userProfile || !loggedInUser) {
+        alert("⚠️ Please login first!");
+        window.location.href = "projectsignin.html";
+    }
+
+    const others = userProfiles.filter(u => u.username !== loggedInUser.username);
+
+    function calcScore(a, b) {
+        let teachMatch = a.learnSkills.filter(i => b.teachSkills.includes(i));
+        let learnMatch = a.teachSkills.filter(i => b.learnSkills.includes(i));
+
+        return {
+            score: teachMatch.length + learnMatch.length,
+            teachMatch,
+            learnMatch
+        };
+    }
+
+    const results = document.getElementById("matchResults");
+
+    let bestScore = 0;
+    let bestUser = "None";
+    let matchCount = 0;
+
+    others.forEach(other => {
+        const m = calcScore(userProfile, other);
+
+        if (m.score > 0) {
+            matchCount++;
+
+            if (m.score > bestScore) {
+                bestScore = m.score;
+                bestUser = other.username;
+            }
+
+            let div = document.createElement("div");
+            div.className = "user-block";
+
+            div.innerHTML = `
+                <p><strong>👤 ${other.username}</strong></p>
+                <p>Match Score: <strong>${m.score}</strong></p>
+                <p><strong>They can teach you:</strong> ${m.teachMatch.join(", ")}</p>
+                <p><strong>You can teach them:</strong> ${m.learnMatch.join(", ")}</p>
+
+                <button class="connect-btn" onclick="openChat('${other.username}')">Connect</button>
+                <button class="feedback-btn" onclick="giveFeedback('${other.username}')">Give Feedback</button>
+            `;
+
+            results.appendChild(div);
+        }
+    });
+
+    // SUMMARY SECTION
+    const summary = document.getElementById("summaryResults");
+    summary.innerHTML = `
+        <div class="summary-block">
+            <p><strong>Total Profiles Scanned:</strong> ${others.length}</p>
+            <p><strong>Total Matches Found:</strong> ${matchCount}</p>
+            <p><strong>Best Match:</strong> ${bestUser}</p>
+            <p><strong>Highest Match Score:</strong> ${bestScore}</p>
+        </div>
+    `;
+
+    // ---------------- CHAT SYSTEM -----------------
+    let activeUser = "";
+
+    function openChat(username) {
+        activeUser = username;
+        document.getElementById("chatUser").textContent = "Chat with " + username;
+        loadMessages(username);
+        document.getElementById("chatBox").style.display = "flex";
+    }
+
+    function closeChat() {
+        document.getElementById("chatBox").style.display = "none";
+    }
+
+    function loadMessages(user) {
+        let chats = JSON.parse(localStorage.getItem("chats")) || {};
+        let msgs = chats[user] || [];
+        let msgBox = document.getElementById("messages");
+        msgBox.innerHTML = "";
+
+        msgs.forEach(m => {
+            let bubble = document.createElement("div");
+            bubble.className = "message " + (m.sender === loggedInUser.username ? "sent" : "");
+            bubble.textContent = m.text;
+            msgBox.appendChild(bubble);
+        });
+
+        msgBox.scrollTop = msgBox.scrollHeight;
+    }
+
+    function sendMessage() {
+        let text = document.getElementById("chatInput").value.trim();
+        if (!text) return;
+
+        let chats = JSON.parse(localStorage.getItem("chats")) || {};
+        if (!chats[activeUser]) chats[activeUser] = [];
+
+        chats[activeUser].push({
+            sender: loggedInUser.username,
+            text: text,
+            time: Date.now()
+        });
+
+        localStorage.setItem("chats", JSON.stringify(chats));
+        document.getElementById("chatInput").value = "";
+        loadMessages(activeUser);
+    }
+
+    // ---------------- FEEDBACK PAGE ----------------
+    function giveFeedback(username) {
+        localStorage.setItem("feedbackUser", username);
+        window.location.href = "feedback.html";
+    }
+
+</script>
+
+</body>
+</html>

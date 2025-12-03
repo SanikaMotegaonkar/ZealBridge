@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register | ZealBridge</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+    body {
+      background-color: #f6f9ff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .back-home {
+      position: absolute;
+      top: 20px;
+      left: 30px;
+      text-decoration: none;
+      color: #555;
+      font-size: 15px;
+      transition: 0.3s;
+    }
+    .back-home:hover {
+      color: #0077ff;
+    }
+
+    .register-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+    }
+
+    .register-box {
+      background-color: rgb(238, 247, 253);
+      padding: 40px 45px;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.878);
+      width: 380px;
+      text-align: center;
+    }
+
+    .logo {
+      color: #00b894;
+      font-size: 26px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .logo span {
+      color: #0077ff;
+    }
+
+    h2 {
+      font-size: 22px;
+      margin-bottom: 6px;
+      color: #333;
+    }
+
+    .subtitle {
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 25px;
+    }
+
+    form {
+      text-align: left;
+    }
+
+    label {
+      font-weight: 500;
+      color: #444;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px 12px;
+      margin-bottom: 18px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+      outline: none;
+      transition: 0.3s;
+    }
+
+    input:focus {
+      border-color: #0077ff;
+      box-shadow: 0 0 4px rgba(0, 119, 255, 0.3);
+    }
+
+    .btn {
+      width: 100%;
+      background: blue;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 25px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .btn:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+    }
+
+    .login-link {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #555;
+    }
+
+    .login-link a {
+      color: #0077ff;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .login-link a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+  <a href="project.html" class="back-home">Home</a>
+
+  <div class="register-container">
+    <div class="register-box">
+      <h1 class="logo"><span>Zeal</span>Bridge</h1>
+      <h2>Create Account</h2>
+      <p class="subtitle">Join the skill-swapping community</p>
+
+      <form id="registerForm">
+        <label>Username</label>
+        <input type="text" id="username" placeholder="Choose a username" required />
+
+        <label>Email</label>
+        <input type="email" id="email" placeholder="Enter your email" required />
+
+        <label>Password</label>
+        <input type="password" id="password" placeholder="Create a password" required />
+
+        <button type="submit" class="btn">Register</button>
+      </form>
+
+      <p class="login-link">
+        Already have an account? <a href="projectsignin.html">Login here</a>
+      </p>
+    </div>
+  </div>
+<script>
+  document.getElementById("registerForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const username = document.getElementById("username").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+
+    if (!username || !email || !password) {
+        alert("⚠️ Please fill all fields!");
+        return;
+    }
+
+    // Get existing users (store under `allUsers` so sign-in reads them)
+    let users = JSON.parse(localStorage.getItem("allUsers")) || [];
+
+    // Check if username already exists
+    const already = users.find(u => u.username.toLowerCase() === username.toLowerCase());
+
+    if (already) {
+        alert("⚠️ This username is already registered!");
+        return;
+    }
+
+    // Save new user
+    const newUser = { username, email, password };
+    users.push(newUser);
+    localStorage.setItem("allUsers", JSON.stringify(users));
+
+    // Auto-login the newly registered user and go to profile
+    localStorage.setItem('loggedInUser', JSON.stringify({ username }));
+
+    alert("🎉 Registration Successful! You are now logged in.");
+
+    // Redirect to profile page to complete skill setup
+    window.location.href = "profile.html";
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Feedback | ZealBridge</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;font-family:Poppins,system-ui,Arial}
+body{margin:0;background:#f5f8ff;color:#102a43}
+.wrap{max-width:720px;margin:36px auto;padding:22px}
+.card{background:#fff;padding:18px;border-radius:12px;box-shadow:0 8px 30px rgba(6,20,30,0.06)}
+label{display:block;margin-top:10px}
+input,textarea,select{width:100%;padding:10px;border-radius:8px;border:1px solid #e6eefc;margin-top:6px}
+.btn{margin-top:12px;padding:10px 14px;border-radius:8px;border:none;background:#0b63d6;color:#fff;cursor:pointer}
+.small{font-size:13px;color:#666;margin-top:6px}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h2>Leave Feedback</h2>
+      <p class="small">Select the user and submit rating + comment.</p>
+
+      <label>To (username)</label>
+      <input id="toUser" placeholder="username or leave empty to select from connections" />
+
+      <label>Rating (1-5)</label>
+      <select id="rating">
+        <option>5</option><option>4</option><option>3</option><option>2</option><option>1</option>
+      </select>
+
+      <label>Comments</label>
+      <textarea id="comment" rows="4" placeholder="Write a short review..."></textarea>
+
+      <button id="submitFb" class="btn">Submit Feedback</button>
+      <p class="small"><a href="account.html">Back to Account</a></p>
+    </div>
+  </div>
+
+<script>
+const logged = JSON.parse(localStorage.getItem('loggedInUser'));
+if(!logged){ alert('Please login'); window.location.href='projectsignin.html'; }
+
+document.getElementById('submitFb').addEventListener('click', ()=>{
+  const to = document.getElementById('toUser').value.trim();
+  const rating = parseInt(document.getElementById('rating').value,10);
+  const comment = document.getElementById('comment').value.trim();
+  if(!to){ alert('Enter the username to send feedback to'); return; }
+
+  const users = JSON.parse(localStorage.getItem('allUsers')) || [];
+  const u = users.find(x=>x.username === to);
+  if(!u){ alert('User not found'); return; }
+
+  if(!u.reviews) u.reviews = [];
+  u.reviews.push({ from: logged.username, rating, comment, ts: Date.now() });
+  // update average rating
+  const sum = u.reviews.reduce((s,r)=>s + (r.rating||0),0);
+  u.rating = (sum / u.reviews.length).toFixed(2);
+
+  // save back
+  const idx = users.findIndex(x=>x.username===u.username);
+  if(idx>=0) users[idx]=u;
+  localStorage.setItem('allUsers', JSON.stringify(users));
+
+  alert('Thank you — feedback submitted!');
+  // optional redirect
+  window.location.href = 'account.html';
+});
+</script>
+</body>
+</html>

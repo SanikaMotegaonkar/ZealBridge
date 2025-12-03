@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Account | ZealBridge</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;font-family:Poppins,system-ui,Arial}
+  body{margin:0;background:#f5f8ff;color:#102a43}
+  .wrap{max-width:820px;margin:36px auto;padding:22px}
+  .card{background:#fff;padding:18px;border-radius:12px;box-shadow:0 8px 30px rgba(6,20,30,0.06)}
+  .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+  .brand{color:#0b63d6;font-weight:700}
+  .section{margin-top:12px}
+  .list{display:flex;gap:8px;flex-wrap:wrap}
+  .chip{background:#eef6ff;padding:6px 10px;border-radius:999px;color:#0b63d6}
+  .conn{background:#fff6f0;border:1px solid #ffe6d5;padding:10px;border-radius:10px;margin-bottom:8px}
+  .btn{padding:8px 12px;border-radius:8px;border:none;background:#0b63d6;color:#fff;cursor:pointer}
+  a.link{color:#0b63d6;text-decoration:none;margin-left:8px}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="header">
+        <div>
+          <div class="brand">ZealBridge</div>
+          <div id="welcome" style="font-weight:600;margin-top:6px"></div>
+        </div>
+        <div>
+          <button class="btn" id="logoutBtn">Logout</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>My Skills</h3>
+        <div><strong>Teach:</strong></div>
+        <div id="teachList" class="list"></div>
+        <div style="margin-top:8px"><strong>Learn:</strong></div>
+        <div id="learnList" class="list"></div>
+      </div>
+
+      <div class="section">
+        <h3>Connections</h3>
+        <div id="connections"></div>
+      </div>
+
+      <div style="margin-top:12px">
+        <a class="link" href="matching.html">Find Matches</a> • <a class="link" href="feedback.html">Leave Feedback</a>
+      </div>
+    </div>
+  </div>
+
+<script>
+const logged = JSON.parse(localStorage.getItem('loggedInUser'));
+if(!logged){ alert('Please login'); window.location.href='projectsignin.html'; }
+document.getElementById('welcome').textContent = logged.username;
+
+const teachEl = document.getElementById('teachList');
+const learnEl = document.getElementById('learnList');
+const connEl = document.getElementById('connections');
+
+(logged.teach||[]).forEach(s=>{ const d=document.createElement('div'); d.className='chip'; d.textContent=s; teachEl.appendChild(d); });
+(logged.learn||[]).forEach(s=>{ const d=document.createElement('div'); d.className='chip'; d.textContent=s; learnEl.appendChild(d); });
+
+const users = JSON.parse(localStorage.getItem('allUsers')) || [];
+const my = users.find(u=>u.username===logged.username) || logged;
+const conns = my.connections || [];
+if(conns.length===0) connEl.innerHTML = '<div class="conn">No connections yet — find matches and connect!</div>';
+else {
+  conns.forEach(c=>{
+    const div=document.createElement('div'); div.className='conn';
+    div.innerHTML = `<strong>${c}</strong> <a href="#" onclick="openChat('${c}')">Chat</a> <a href="feedback.html?to=${encodeURIComponent(c)}" style="margin-left:10px">Feedback</a>`;
+    connEl.appendChild(div);
+  });
+}
+
+document.getElementById('logoutBtn').addEventListener('click', ()=>{
+  localStorage.removeItem('loggedInUser');
+  alert('Logged out');
+  window.location.href='projectsignin.html';
+});
+
+function openChat(username){
+  // open matching chat popup by simulating navigation to matching.html chat open
+  // We can open matching.html and call openChat via query param or localStorage marker
+  localStorage.setItem('openChatWith', username);
+  window.location.href = 'matching.html';
+}
+</script>
+</body>
+</html>
